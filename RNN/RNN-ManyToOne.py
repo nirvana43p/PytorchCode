@@ -27,15 +27,17 @@ class RNN_MT1(nn.Module):
             **kwargs (Dict): extra arguments to the RNNs 
     """
     
-    def __init__(self, input_dim, hidden_dim, num_layers, 
+    def __init__(self, input_dim,output_dim, hidden_dim, num_layers, 
                  batch_first = True, type_rnn = "RNN", **kwargs):
         super(RNN_MT1,self).__init__()
         
         self._input_dim = input_dim
+        self._output_dim = output_dim
         self._hidden_dim = hidden_dim
         self._num_layers = num_layers
         self._batch_first = batch_first
         self._type_rnn = type_rnn.upper()
+        
         
         if self._type_rnn == "RNN":
             self.rnn = nn.RNN(self._input_dim, self._hidden_dim, self._num_layers,batch_first=self._batch_first,**kwargs)
@@ -46,6 +48,9 @@ class RNN_MT1(nn.Module):
         else:
             raise Exception("{} is not defined".format(self._type_rnn))
             
+        
+        self.lineal = nn.Linear(self._hidden_dim,self._output_dim)
+        self.flatten = nn.Flatten()
             
         
         """ forward method
@@ -57,23 +62,26 @@ class RNN_MT1(nn.Module):
                                                 else 
                                                     shape = (n_states,batch_size,input_dim)
             Return:
-                output (tuple((torch.Tensor),(torch.Tensor))),: output of the RNN
-                                        if batch_first is True 
-                                                    output -> shape = (batch_size,n_states,hidden_dim)
-                                                    h_f -> shape = (1, batch_size,hidden_dim)
-                                                else 
-                                                    output -> shape = (n_states,batch_size,hidden_state)
-                                        h_f -> shape = (1, batch_size,hidden_dim)
+                output (torch.Tensor): shape -> (1 if bidirectional is False, batch_size, output_dim)
                                                     
         """
     def forward(self, input_features, *args):
         
+        # input through the RNN
+        """
+        output -> shape = (batch_size is True,n_states,hidden_dim)
+        h_n -> shape = (1 if bidirectional is True, batch_size,hidden_dim)
+        """
         if self._type_rnn in ("RNN","GRU"):
-            output, h_n = self.rnn(input_features,*args)
-            return output, h_n
+            
+            outputs, h_n = self.rnn(input_features,*args)
         else:
-            output, (h_n,cn) = self.rnn(input_features,*args)
-            return output, (h_n,cn)
+            outputs, (h_n,cn) = self.rnn(input_features,*args)
+            
+        # output of the h_n through the lineal 
+        output = self.lineal(h_n)
+        
+        return output
 
 
 
@@ -86,15 +94,18 @@ if __name__ == "__main__":
     input_dim = 4
     
     input_features = torch.randn(batch_size,n_states,input_dim)
+    print(input_features.shape)
     
-    # RNN 
+    # RNN-Many-to-one
+    output_dim = 1
     hidden_dim = 3
     num_layers = 1
     batch_first = True    
     
-    model_rnn = RNN_MT1(input_dim, hidden_dim, num_layers, batch_first = True, type_rnn = "gru") 
+    model_rnn = RNN_MT1(input_dim,output_dim, hidden_dim, num_layers, batch_first = True, type_rnn = "gru") 
     
     output = model_rnn(input_features)
+    print(output.shape)
         
         
         
