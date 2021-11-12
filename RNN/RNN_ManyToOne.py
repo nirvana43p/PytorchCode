@@ -54,7 +54,6 @@ class RNN_MT1(nn.Module):
             
         
         self.lineal = nn.Linear(self._hidden_dim,self._output_dim)
-        self.flatten = nn.Flatten()
             
         
         """ forward method
