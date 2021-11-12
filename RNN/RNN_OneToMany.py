@@ -16,46 +16,70 @@ sklearn: 0.23.1
 
 import torch
 import torch.nn as nn
-from RNN_ManyToOne import RNN_MT1
 
 
-class RNN_1TM(RNN_MT1):
+class RNN_1TM(nn.Module):
     
-    def __init__(self,input_dim, hidden_dim, num_layers, 
-                 batch_first = True, type_rnn = "RNN", **kwargs):
-        super(RNN_1TM,self).__init__(input_dim,input_dim,hidden_dim, num_layers, 
-                                     batch_first = True, type_rnn = "RNN", 
-                                     **kwargs)
+    def __init__(self, input_dim, seq_length, hidden_dim, 
+                 type_rnn = "RNN", **kwargs):
+        super(RNN_1TM,self).__init__()
+        self._input_dim = input_dim
+        self._output_dim = input_dim
+        self._seq_length = seq_length
+        self._hidden_dim = hidden_dim
+        self._type_rnn = type_rnn.upper()
         
-    def forward(self, input_features, *args):
+        
+        self.rnnCell = nn.RNNCell(self._input_dim, self._hidden_dim,**kwargs)
+        
+        if self._type_rnn == "RNN":
+            self.rnnCell = nn.RNNCell(self._input_dim, self._hidden_dim,**kwargs)
+        elif self._type_rnn == "LSTM":
+            self.rnnCell = nn.LSTMCell(self._input_dim, self._hidden_dim,**kwargs)
+        elif self._type_rnn == "GRU":
+            self.rnnCell = nn.GRUCell(self._input_dim, self._hidden_dim,**kwargs)
+        else:
+            raise Exception("{} is not defined".format(self._type_rnn))
+        
+        self.lineal = nn.Linear(self._hidden_dim, self._output_dim)
+        
+        
+    def forward(self, input_features, h0, c0):
+        output = input_features
+        h_out = h0
+        c_out = c0
         
         if self._type_rnn in ("RNN","GRU"):
-            outputs, h_n = self.rnn(input_features,*args)
+            for seq in range(self._seq_length):
+                h_out = self.rnnCell(output,h_out)
+                output = self.lineal(h_out)
         else:
-            outputs, (h_n,cn) = self.rnn(input_features,*args)
-        
-        # output of the h_n through the lineal 
-        output = self.lineal(outputs)
-            
+            for seq in range(self._seq_length):
+                h_out, c_out = self.rnnCell(output,(h_out,c_out))
+                output = self.lineal(h_out)
         
         return output
+            
 
 if __name__ == "__main__":
     
     # Input tensor
-    n_states = 5
+    seq_length = 5
     batch_size = 128
-    input_dim = 4
+    input_dim = 5
     
-    input_features = torch.randn(batch_size,n_states,input_dim)
+    input_features = torch.randn(batch_size,input_dim)
     print(input_features.shape)
     
     # RNN- one-To-Many
-    hidden_dim = 3
-    num_layers = 1
-    batch_first = True    
+    hidden_dim = 10
+    seq_length = 5 # or n_states
     
-    model_rnn = RNN_1TM(input_dim, hidden_dim, num_layers, batch_first = True, type_rnn = "gru") 
+    h0_random = torch.randn(batch_size,hidden_dim)
+    c0_random = torch.randn(batch_size,hidden_dim)
+
+    model_rnn = RNN_1TM(input_dim, seq_length, hidden_dim, type_rnn = "lstm") 
     
-    output = model_rnn(input_features)
+    output = model_rnn(input_features,h0_random,c0_random)
     print(output.shape)
+    
