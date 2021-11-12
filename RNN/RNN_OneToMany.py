@@ -29,9 +29,7 @@ class RNN_1TM(nn.Module):
         self._hidden_dim = hidden_dim
         self._type_rnn = type_rnn.upper()
         
-        
-        self.rnnCell = nn.RNNCell(self._input_dim, self._hidden_dim,**kwargs)
-        
+                
         if self._type_rnn == "RNN":
             self.rnnCell = nn.RNNCell(self._input_dim, self._hidden_dim,**kwargs)
         elif self._type_rnn == "LSTM":
