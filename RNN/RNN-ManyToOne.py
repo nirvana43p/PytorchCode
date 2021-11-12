@@ -3,6 +3,10 @@
 Created on Fri Nov 12 13:58:20 2021
     
     This is a template of a RNN - Many to one
+    Three RNN:
+        -RNN
+        -LSTM
+        -GRU 
 
 @author: Jorge Ivan Avalos Lopez
 python: 3.8.3
