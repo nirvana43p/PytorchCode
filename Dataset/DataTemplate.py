@@ -9,6 +9,9 @@ Created on Fri Nov 12 09:22:22 2021
     transform either numpy arrays or pandas dataframes to tensor objects
 
 @author: Jorge Ivan Avalos Lopez
+python: 3.8.3
+pytorch: 1.6.0
+sklearn: 0.23.1
 """
 
 
@@ -66,7 +69,7 @@ class myData(Dataset):
         Args:
             index (Integer) : Define the index
             
-        return:
+        Return:
             sample (Tuple) : (input vector, label vector)
     
     """
@@ -95,6 +98,16 @@ class myData(Dataset):
         return self._n_samples
         
         
+class ToTensor:
+    
+    """ __call__ magic method to recive objects and transform them 
+        
+        Return: 
+            (torch.Tensor, torch.Tensor)
+    """
+    def __call__(self, sample):
+        x, y = sample
+        return torch.TODO----(x), torch.TODO----(y)
         
         
         
