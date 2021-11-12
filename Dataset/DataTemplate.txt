@@ -74,21 +74,17 @@ class myData(Dataset):
     
     """
     def __getitem__(self, index):
-        
-        if isinstance(index, int):
             
-            if self._train:
-                sample = _[index], _[index]
-            else:
-                sample = _[index], _[index]
-        
-            if self._transform:
-                sample = self._transform(sample)
-            
-            return sample
-                
+        if self._train:
+            sample = _[index], _[index]
         else:
-            raise Exception("{} is not an Integer".format(index))
+            sample = _[index], _[index]
+        
+        if self._transform:
+            sample = self._transform(sample)
+            
+        return sample
+                
         
         
     """ __len__ magic method to len the object
