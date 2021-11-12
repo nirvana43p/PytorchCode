@@ -54,7 +54,7 @@ class myData(Dataset):
         # Split dataset into train and test using train_test_split
         _ , _ , _, _ = train_test_split(_,_, 
                                         test_size = self._split_data["test_size"],
-                                        random_state self._split_data["random_state"])
+                                        random_state = self._split_data["random_state"])
         
         
         # Get the cardinality of the dataset
