@@ -11,7 +11,6 @@ sklearn: 0.23.1
 """
 
 import torch
-import torch.nn as nn 
 from torch.utils.data import Dataset, DataLoader
 import math
 
