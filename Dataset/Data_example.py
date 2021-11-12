@@ -13,9 +13,10 @@ sklearn: 0.23.1
 
 
 import torch
-from torch.utils.data import Dataset
+from torch.utils.data import Dataset, DataLoader
 from sklearn.model_selection import train_test_split
 from sklearn import datasets
+import numpy as np
 
 
 class myData(Dataset):
@@ -66,21 +67,17 @@ class myData(Dataset):
     """
     def __getitem__(self, index):
         
-        if isinstance(index, int):
-            
-            if self._train:
-                sample = self.X_train[index], self.Y_train[index]
-            else:
-                sample = self.X_test[index], self.Y_test[index]
-        
-            if self._transform:
-                sample = self._transform(sample)
-            
-            return sample
-                
+        if self._train:
+            sample = self._X_train[index], self._Y_train[index]
         else:
-            raise Exception("{} is not an Integer".format(index))
+            sample = self._X_test[index], self._Y_test[index]
         
+        if self._transform:
+            sample = self._transform(sample)
+        
+        return sample
+                
+                
         
     """ __len__ magic method to len the object
     
@@ -98,5 +95,27 @@ class ToTensor:
     """
     def __call__(self, sample):
         x, y = sample
-        return torch.from_numpy(x), torch.from_numpy(y)
-        
+        return torch.from_numpy(np.asarray(x)), torch.from_numpy(np.asarray(y))
+
+
+
+# Test
+if __name__ == "__main__":
+    data_train = myData(None,transform=ToTensor())
+    data_test = myData(None,transform=ToTensor(), train = False)
+    
+    
+    trainloader = DataLoader(dataset=data_train,batch_size= 16,shuffle=True)
+    testloader = DataLoader(dataset=data_test,batch_size= 16,shuffle=False)
+    
+    
+    # Run the batches
+    for x_train, y_train in trainloader:
+        print(x_train.shape, y_train.shape, type(x_train),type(y_train))
+
+    print()
+    # Run the batches
+    for x_test, y_test in testloader:
+        print(x_test.shape, y_test.shape, type(x_test.shape),type(y_test))
+
+    
