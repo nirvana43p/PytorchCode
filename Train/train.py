@@ -11,9 +11,7 @@ sklearn: 0.23.1
 """
 
 import torch
-import torch.nn as nn 
 from torch.utils.data import Dataset, DataLoader
-from RNN_ManyToOne import RNN_MT1
 import math
 
 
