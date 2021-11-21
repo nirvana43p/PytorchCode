@@ -1,0 +1,73 @@
+"""
+Created on Fri Nov 21 08:44:03 2021
+
+    This is a template of a Deep Forward Network class inherited from torch.NN. 
+    This template is focused in supervised learning datasets.
+   
+
+@author: Jorge Ivan Avalos Lopez
+python: 3.8.3
+pytorch: 1.6.0
+sklearn: 0.23.1
+"""
+import torch
+import torch.nn as nn
+
+class DNN(nn.Module):
+    """ DNN initialisation
+        Args:
+            input_dim (Int): Input dimension
+            dict_arch (dict): DNN architecture
+    """
+    def __init__(self,input_dim,dict_arch):
+        super(DNN,self).__init__()
+        
+        self._input_dim = input_dim
+        self._dict_arch = dict_arch
+        
+        # Define layers 
+        self.layer1 = nn.Sequential(
+                        nn.Linear(self._input_dim,self._dict_arch["layer1"]["input_dim"]),
+                        nn.BatchNorm1d(self._dict_arch["layer1"]["input_dim"]),
+                        nn.ReLU(),
+                        nn.Dropout(p=self._dict_arch["layer1"]["P"])
+                    )
+        .
+        .
+        .
+        .
+        self.layern = nn.Sequential(
+                        nn.Linear(self._dict_arch["layer(n-1)"]["input_dim"],self._dict_arch["layern"]["input_dim"]),
+                        nn.BatchNorm1d(self._dict_arch["layern"]["input_dim"]),
+                        nn.ReLU(), # --> if is the final layer, it should not have any activation
+                        nn.Dropout(p=self._dict_arch["layern"]["P"])
+                    )
+        
+        self.dnn = nn.Sequential(self.layer1,....,self.layern)
+    
+    
+    """ Forward pass
+        Args (torch.Tensor) : Tensor input
+    
+    """
+    def forward(self,t_input):
+        return self.dnn(t_input)
+
+
+# Example of dict_arch
+dict_arch{
+        "layer1": {"input_dim":int,"P":float}
+        .
+        .
+        .
+        "layern": {"input_dim":int,"P":float}
+    }
+            
+            
+            
+        
+        
+        
+        
+    
+    
