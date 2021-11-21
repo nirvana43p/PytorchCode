@@ -11,9 +11,22 @@ sklearn: 0.23.1
 """
 
 import torch
-from torch.utils.data import Dataset, DataLoader
+from torch.utils.data import DataLoader
 import math
 
+""" Training Model
+        Args:
+            model (nn.Module) : Model to train, model must be in gpu or cpu 
+            loss (nn.lossFunction) : Loss function to minimize
+            optimizer (torch.optim.optimizer) : optimizer algorithm
+            data_train (torch.utils.data.Dataset) : a Dataset instance of the data train
+            data_test (torch.utils.data.Dataset) : a Dataset instance of the data train
+            num_epochs (int) : number of training epochs
+            batch_size (int) : number of batch size
+            device (string) : device type 
+        return:
+            model (nn.Module) : Model trained
+"""
 
 
 def train_model(model, loss, optimizer, data_train, data_test,
@@ -22,6 +35,7 @@ def train_model(model, loss, optimizer, data_train, data_test,
     # Build The DataLoader Object to make batches in training
     trainloader = DataLoader(dataset=data_train,batch_size=batch_size,shuffle=True)
     testloader = DataLoader(dataset=data_test,batch_size=batch_size,shuffle=False)
+
     
     # number of iterations per epoch
     n_iterations_train = math.ceil(len(trainloader))
@@ -30,6 +44,7 @@ def train_model(model, loss, optimizer, data_train, data_test,
     # to store errors
     train_err = []
     test_err = []
+    
     
     for epoch in range(num_epochs):
         
@@ -52,6 +67,7 @@ def train_model(model, loss, optimizer, data_train, data_test,
             test_error = 0
             for i, (x_test, y_test) in enumerate(testloader):
                 x_test, y_test = x_test.to(device), y_test.to(device)
+                # Use eval if use dropout
                 output = model.eval()(x_test)
                 l = loss(output,y_test)
                 test_error += l.item()
