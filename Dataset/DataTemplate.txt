@@ -29,6 +29,7 @@ class myData(Dataset):
             transform (Class) : Define a transformation of the dataset
             train (Bool) : Define training or test data
             split_data (Dict) : Define defaul parameters to train_test_split function
+                                random state must be the number for training and validation
     """
     
     def __init__(self,path,transform = None, train = True, 
